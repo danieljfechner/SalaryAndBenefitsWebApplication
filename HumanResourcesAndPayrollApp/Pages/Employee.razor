@@ -1,0 +1,55 @@
+﻿@page "/Employee/{employeeId:int}"
+@inject IEmployeeService employeeService
+@inject NavigationManager NavigationManager
+
+<h3>Employee</h3>
+<hr />
+
+@if (employee != null)
+{
+    <div class="col-md-10">
+        <div class="row">
+            <div class="form-group my-2 col-sm">
+                <label for="FirstName" class="control-label">First Name</label>
+                <input form="FirstName" class="form-control" @bind="@employee.FirstName" />
+            </div>
+            <div class="form-group mx-4 my-2 col-sm">
+                <label for="MiddleName" class="control-label">Middle Name</label>
+                <input form="MiddleName" class="form-control" @bind="@employee.MiddleName" />
+            </div>
+            <div class="form-group my-2 col-sm">
+                <label for="LastName" class="control-label">Last Name</label>
+                <input form="LastName" class="form-control" @bind="@employee.LastName" />
+            </div>
+            <CascadingValue Value=@EmployeeId>
+                <hr />
+                <Spouse></Spouse>
+                <hr />
+                <DependentsList OnDependentsAltered="DependentsShouldReload"></DependentsList>
+                <CostSummary @ref="summary"></CostSummary>
+            </CascadingValue>
+        </div>
+    </div>
+}
+
+@code {
+    private Models.Employee employee = new Models.Employee();
+
+    [Parameter]
+    public int EmployeeId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        employee = await employeeService.GetEmployee(EmployeeId);
+    }
+
+    CostSummary? summary;
+
+    public async Task DependentsShouldReload()
+    {
+        if (summary != null)
+        {
+            await summary.Refresh();            
+        }
+    }
+}

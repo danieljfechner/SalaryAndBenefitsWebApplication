@@ -1,0 +1,24 @@
+﻿@inherits ComponentBase
+@inject IEmployeeService employeeService
+@if (DependentModel != null)
+{
+
+    <td>@DependentModel.FirstName</td>
+    <td>@DependentModel.MiddleName</td>
+    <td>@DependentModel.LastName</td>
+    <td><button class="btn btn-outline-primary" type="button" @onclick="RemoveDependent">Remove</button></td>
+}
+
+@code {
+    [Parameter]
+    public EventCallback<int> OnDependentRemoved { get; set; }
+
+    protected async void RemoveDependent()
+    {
+        await employeeService.RemoveEmployeeDependent(DependentModel.Id);
+        await OnDependentRemoved.InvokeAsync(DependentModel.Id);
+    }
+
+    [CascadingParameter]
+    public Models.Dependent DependentModel { get; set; }
+}

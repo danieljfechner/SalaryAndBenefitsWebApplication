@@ -1,0 +1,34 @@
+﻿@inherits ComponentBase
+@inject NavigationManager NavigationManager
+@inject IEmployeeService employeeService
+
+@if (spouse != null)
+{
+    <h2>Spouse</h2>
+    <div class="row">
+        <div class="form-group my-2 col-sm">
+            <label for="FirstName" class="control-label">First Name</label>
+            <input form="FirstName" class="form-control" @bind="@spouse.FirstName" />
+        </div>
+        <div class="form-group mx-4 my-2 col-sm">
+            <label for="MiddleName" class="control-label">Middle Name</label>
+            <input form="MiddleName" class="form-control" @bind="@spouse.MiddleName" />
+        </div>
+        <div class="form-group my-2 col-sm">
+            <label for="LastName" class="control-label">Last Name</label>
+            <input form="LastName" class="form-control" @bind="@spouse.LastName" />
+        </div>
+    </div>
+}
+
+@code {
+    private Models.Spouse? spouse;
+
+    [CascadingParameter]
+    public int EmployeeId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        spouse = await employeeService.GetEmployeeSpouse(EmployeeId);
+    }
+}

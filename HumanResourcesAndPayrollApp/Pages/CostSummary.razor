@@ -1,0 +1,91 @@
+﻿@inject IEmployeeService employeeService
+@inject NavigationManager NavigationManager
+
+<hr />
+<h3>Cost Summary</h3>
+
+@if (employeeSummary?.Employee != null)
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Relationship</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Cost</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Self</td>
+                <td>@employeeSummary.Employee.FirstName</td>
+                <td>@employeeSummary.Employee.LastName</td>
+                <td>@employeeSummary.Employee.Cost.ToString("C2")</td>
+            </tr>
+            @if (@employeeSummary.Employee.Spouse != null)
+            {
+                <tr>
+                    <td>Spouse</td>
+                    <td>@employeeSummary.Employee.Spouse.FirstName</td>
+                    <td>@employeeSummary.Employee.Spouse.LastName</td>
+                    <td>@employeeSummary.Employee.Spouse.Cost.ToString("C2")</td>
+                </tr>
+            }
+            @if (@employeeSummary.Employee.Dependents != null)
+            {
+                @foreach (var dependent in @employeeSummary.Employee.Dependents)
+                {
+                    <tr>
+                        <td>Non spousal dependent</td>
+                        <td>@dependent.FirstName</td>
+                        <td>@dependent.LastName</td>
+                        <td>@dependent.Cost.ToString("C2")</td>
+                    </tr>
+                }
+
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td><strong>Total Cost</strong></td>
+                <td></td>
+                <td></td>
+                <td><strong>@employeeSummary.TotalCostOfBenefits.ToString("C2")</strong></td>
+            </tr>
+            <tr>
+                <td><strong>Weekly Paycheck</strong></td>
+                <td></td>
+                <td></td>
+                <td><strong>@employeeSummary.WeeklyPayCheck.ToString("C2")</strong></td>
+            </tr>
+            <tr>
+                <td><strong>Total Yearly Take Home Pay</strong></td>
+                <td></td>
+                <td></td>
+                <td><strong>@employeeSummary.TotalYearlySalary.ToString("C2")</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+}
+
+@code {
+    private Models.EmployeeCostSummary employeeSummary = new Models.EmployeeCostSummary();
+
+    [CascadingParameter]
+    public int EmployeeId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        employeeSummary = await employeeService.GetEmployeeWithAllAssociatedCosts(EmployeeId);
+    }
+
+    public async Task Refresh()
+    {
+        employeeSummary = await employeeService.GetEmployeeWithAllAssociatedCosts(EmployeeId);
+        await OnDependentsAltered.InvokeAsync(EmployeeId);
+        this.StateHasChanged();
+    }
+
+    [Parameter]
+    public EventCallback<int> OnDependentsAltered { get; set; }
+}
