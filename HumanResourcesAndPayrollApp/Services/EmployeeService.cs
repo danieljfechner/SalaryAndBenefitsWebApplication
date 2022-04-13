@@ -115,7 +115,7 @@ namespace HumanResourcesAndPayrollApp.Services
             }
 
             var discountMultiplier = 1m;
-            if (person.FirstName.StartsWith("A", StringComparison.InvariantCultureIgnoreCase))
+            if (person.FirstName?.StartsWith("A", StringComparison.InvariantCultureIgnoreCase) ?? false)
             {
                 discountMultiplier = PersonBase.StartsWithADiscount;
             }
